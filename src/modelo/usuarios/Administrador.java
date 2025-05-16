@@ -57,7 +57,7 @@ public class Administrador extends Usuario {
         
         throw new AtraccionException("La atracción no existe en el sistema");
     }
-    
+     
     
     public void cambiarInfoEmpleado(Empleado empleado) throws EmpleadoException {
         if (empleado == null) {
@@ -553,7 +553,7 @@ public class Administrador extends Usuario {
         return asignacionesTurno.containsKey(empleado);
     }
     
-    
+     
     public Object obtenerLugarAsignado(Empleado empleado, Date fecha, String turno) {
         if (empleado == null || fecha == null || turno == null || !Recurrente.esValido(turno)) {
             return null;
