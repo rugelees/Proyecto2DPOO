@@ -161,13 +161,13 @@ public class ConsolaEmpleado {
             TiqueteBasico tiquete = new TiqueteBasico(
                 nuevoId,
                 nombreTiquete,
-                1, // numTiquetes
+                1,
                 exclusividad,
                 fecha,
                 "Activo",
                 "Cajero",
                 categoria,
-                false // usado
+                false
             );
 
             tiquetesBasicos.add(tiquete);
