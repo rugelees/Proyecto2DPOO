@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 import excepciones.TiqueteException;
 import modelo.tiquetes.Tiquete;
+import modelo.tiquetes.FastPass;
 
 
 public class Cliente extends Usuario {
@@ -15,6 +16,7 @@ public class Cliente extends Usuario {
     private float peso;
     private int edad;
     private List<String> condicionesSalud;
+    private boolean esEmpleado;
     
    
     public Cliente(String nombre, int id, String email, String password) {
@@ -23,6 +25,7 @@ public class Cliente extends Usuario {
         this.id = id;
         this.tiquetes = new ArrayList<>();
         this.condicionesSalud = new ArrayList<>();
+        this.esEmpleado = false;
     }
     
     
@@ -108,6 +111,18 @@ public class Cliente extends Usuario {
    
     public boolean tieneCondicionSalud(String condicion) {
         return condicionesSalud.contains(condicion);
+    }
+    
+    public void agregarFastPass(FastPass fastPass) {
+        tiquetes.add(fastPass.getTiqueteAsociado());
+    }
+    
+    public boolean isEmpleado() {
+        return esEmpleado;
+    }
+    
+    public void setEmpleado(boolean esEmpleado) {
+        this.esEmpleado = esEmpleado;
     }
     
     @Override

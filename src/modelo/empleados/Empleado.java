@@ -1,6 +1,8 @@
 package modelo.empleados;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import modelo.usuarios.Usuario;
 
@@ -13,6 +15,7 @@ public abstract class Empleado extends Usuario implements Serializable {
     protected int id;
     protected boolean servicioGeneral;
     protected boolean horasExtras;
+    private List<Turno> turnos;
     
 
     public Empleado(String tipo, String nombre, int id, boolean servicioGeneral, String email, String password, boolean horasExtras) {
@@ -22,6 +25,7 @@ public abstract class Empleado extends Usuario implements Serializable {
         this.id = id;
         this.servicioGeneral = servicioGeneral;
         this.horasExtras = horasExtras;
+        this.turnos = new ArrayList<>();
     }
     
   
@@ -89,5 +93,13 @@ public abstract class Empleado extends Usuario implements Serializable {
     @Override
     public String toString() {
         return "Empleado [tipo=" + tipo + ", nombre=" + nombre + ", id=" + id + "]";
+    }
+
+    public List<Turno> getTurnos() {
+        return turnos;
+    }
+
+    public void agregarTurno(Turno turno) {
+        turnos.add(turno);
     }
 }

@@ -14,6 +14,8 @@ public class AtraccionMecanica extends Atraccion {
     private float pesoMaximo;
     private String restriccionesSalud;
     private String nivelRiesgo;
+    private Date fechaInicioTemporada;
+    private Date fechaFinTemporada;
     
     
     public AtraccionMecanica(String nombre, String restriccionClima, boolean deTemporada, Date fechaInicio, Date fechaFin,
@@ -180,5 +182,21 @@ public class AtraccionMecanica extends Atraccion {
     
     public boolean esRiesgoMedio() {
         return "medio".equalsIgnoreCase(nivelRiesgo);
+    }
+
+    public Date getFechaInicioTemporada() {
+        return fechaInicioTemporada;
+    }
+
+    public Date getFechaFinTemporada() {
+        return fechaFinTemporada;
+    }
+
+    public void setFechaInicioTemporada(Date fechaInicioTemporada) {
+        this.fechaInicioTemporada = fechaInicioTemporada;
+    }
+
+    public void setFechaFinTemporada(Date fechaFinTemporada) {
+        this.fechaFinTemporada = fechaFinTemporada;
     }
 }

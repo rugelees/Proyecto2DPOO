@@ -1,0 +1,1 @@
+Cajero|Pedro Gomez|996|false|pedro@test.com|pass123|false|null

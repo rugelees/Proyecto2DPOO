@@ -1,0 +1,1 @@
+Atracción Alto|Juan Perez|997|false|juan@test.com|pass123|false|true|null

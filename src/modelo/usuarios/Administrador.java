@@ -472,7 +472,7 @@ public class Administrador extends Usuario {
     }
     
     
-    public void asignarTurno(Empleado empleado, Date fecha, String turno) throws EmpleadoException {
+    public void asignarTurno(Empleado empleado, Date fecha, String turno, boolean horasExtras) throws EmpleadoException {
         if (empleado == null || fecha == null || turno == null) {
             throw new EmpleadoException("El empleado, la fecha y el turno no pueden ser nulos");
         }
@@ -495,6 +495,8 @@ public class Administrador extends Usuario {
             asignacionesFecha.put(turno, new HashMap<>());
         }
         
+        Map<Empleado, Object> asignacionesTurno = asignacionesFecha.get(turno);
+        asignacionesTurno.put(empleado, horasExtras);
     }
     
     
@@ -710,5 +712,9 @@ public class Administrador extends Usuario {
     @Override
     public String toString() {
         return "Administrador [id=" + id + ", nombre=" + nombre + ", email=" + email + "]";
+    }
+
+    public Map<Date, Map<String, Map<Empleado, Object>>> getAsignacionesEmpleados() {
+        return asignacionesEmpleados;
     }
 }

@@ -13,6 +13,8 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.util.Map;
 
 public class ConsolaAdmin {
     private Administrador admin;
@@ -20,6 +22,7 @@ public class ConsolaAdmin {
     private PersistenciaAtracciones persistenciaAtracciones;
     private PersistenciaEmpleados persistenciaEmpleados;
     private Scanner scanner;
+    private SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
 
     public ConsolaAdmin() {
         persistenciaUsuarios = new PersistenciaUsuarios();
@@ -58,7 +61,7 @@ public class ConsolaAdmin {
             System.out.println("\n=== Menú Administrador ===");
             System.out.println("1. Gestionar Empleados");
             System.out.println("2. Gestionar Atracciones");
-            System.out.println("3. Ver Reportes");
+            System.out.println("3. Gestionar Turnos");
             System.out.println("4. Salir");
             System.out.print("Seleccione una opción: ");
 
@@ -71,7 +74,7 @@ public class ConsolaAdmin {
                     gestionarAtracciones();
                     break;
                 case 3:
-                    verReportes();
+                    gestionarTurnos();
                     break;
                 case 4:
                     salir = true;
@@ -172,20 +175,18 @@ public class ConsolaAdmin {
     private void verEmpleados() {
         System.out.println("\n=== Lista de Empleados ===");
         try {
-            for (Usuario usuario : persistenciaUsuarios.cargarTodosUsuarios()) {
-                if (usuario instanceof Empleado) {
-                    Empleado emp = (Empleado) usuario;
-                    System.out.println("Nombre: " + emp.getNombre());
-                    System.out.println("Usuario: " + emp.getEmail());
-                    System.out.println("Tipo: " + emp.getClass().getSimpleName());
-                    System.out.println("Lugar de trabajo: " + 
-                        (emp instanceof Regular ? ((Regular)emp).getLugarAsignado() != null ? ((Regular)emp).getLugarAsignado().getNombre() : "No asignado" :
-                         emp instanceof Cajero ? ((Cajero)emp).getLugarAsignado() != null ? ((Cajero)emp).getLugarAsignado().getNombre() : "No asignado" :
-                         "No asignado"));
-                    System.out.println("-------------------");
-                }
+            List<Empleado> empleados = persistenciaEmpleados.cargarTodosEmpleados();
+            for (Empleado emp : empleados) {
+                System.out.println("Nombre: " + emp.getNombre());
+                System.out.println("Usuario: " + emp.getEmail());
+                System.out.println("Tipo: " + emp.getClass().getSimpleName());
+                System.out.println("Lugar de trabajo: " + 
+                    (emp instanceof Regular ? ((Regular)emp).getLugarAsignado() != null ? ((Regular)emp).getLugarAsignado().getNombre() : "No asignado" :
+                     emp instanceof Cajero ? ((Cajero)emp).getLugarAsignado() != null ? ((Cajero)emp).getLugarAsignado().getNombre() : "No asignado" :
+                     "No asignado"));
+                System.out.println("-------------------");
             }
-        } catch (UsuarioException e) {
+        } catch (EmpleadoException e) {
             System.out.println("Error al cargar los empleados: " + e.getMessage());
         }
     }
@@ -300,28 +301,94 @@ public class ConsolaAdmin {
         }
     }
 
-    private void verReportes() {
-        System.out.println("\n=== Reportes ===");
-        System.out.println("1. Ventas por día");
-        System.out.println("2. Empleados por lugar");
-        System.out.println("3. Atracciones más populares");
+    private void gestionarTurnos() {
+        System.out.println("\n=== Gestión de Turnos ===");
+        System.out.println("1. Asignar Turno");
+        System.out.println("2. Ver Turnos Asignados");
         System.out.print("Seleccione una opción: ");
 
         int opcion = Integer.parseInt(scanner.nextLine());
         switch (opcion) {
             case 1:
-                // Implementar reporte de ventas
+                asignarTurno();
                 break;
             case 2:
-                // Implementar reporte de empleados
-                break;
-            case 3:
-                // Implementar reporte de atracciones
+                verTurnosAsignados();
                 break;
             default:
                 System.out.println("Opción no válida");
         }
     }
+
+    private void asignarTurno() {
+        System.out.println("\nEmpleados disponibles:");
+        try {
+            List<Empleado> empleados = persistenciaEmpleados.cargarTodosEmpleados();
+            for (int i = 0; i < empleados.size(); i++) {
+                System.out.println((i + 1) + ". " + empleados.get(i).getNombre());
+            }
+
+            System.out.print("Seleccione el empleado: ");
+            int indiceEmpleado = Integer.parseInt(scanner.nextLine()) - 1;
+            Empleado empleado = empleados.get(indiceEmpleado);
+
+            System.out.print("Fecha del turno (dd/MM/yyyy): ");
+            String fechaStr = scanner.nextLine();
+            Date fecha = formatoFecha.parse(fechaStr);
+
+            System.out.println("Tipo de turno:");
+            System.out.println("1. Apertura");
+            System.out.println("2. Cierre");
+            System.out.print("Seleccione el tipo: ");
+            int tipoTurno = Integer.parseInt(scanner.nextLine());
+            String turno = tipoTurno == 1 ? "Apertura" : "Cierre";
+
+            System.out.print("¿Es horas extras? (S/N): ");
+            boolean horasExtras = scanner.nextLine().equalsIgnoreCase("S");
+
+            admin.asignarTurno(empleado, fecha, turno, horasExtras);
+            System.out.println("Turno asignado exitosamente");
+
+        } catch (Exception e) {
+            System.out.println("Error al asignar turno: " + e.getMessage());
+        }
+    }
+
+    private void verTurnosAsignados() {
+        System.out.println("\nTurnos asignados:");
+        try {
+            List<Empleado> empleados = persistenciaEmpleados.cargarTodosEmpleados();
+            for (Empleado empleado : empleados) {
+                System.out.println("\nEmpleado: " + empleado.getNombre());
+                Map<Date, Map<String, Map<Empleado, Object>>> asignaciones = admin.getAsignacionesEmpleados();
+                boolean tieneTurnos = false;
+                
+                for (Map.Entry<Date, Map<String, Map<Empleado, Object>>> entry : asignaciones.entrySet()) {
+                    Date fecha = entry.getKey();
+                    Map<String, Map<Empleado, Object>> asignacionesFecha = entry.getValue();
+                    
+                    for (Map.Entry<String, Map<Empleado, Object>> turnoEntry : asignacionesFecha.entrySet()) {
+                        String turno = turnoEntry.getKey();
+                        Map<Empleado, Object> asignacionesTurno = turnoEntry.getValue();
+                        
+                        if (asignacionesTurno.containsKey(empleado)) {
+                            tieneTurnos = true;
+                            System.out.println("- Fecha: " + formatoFecha.format(fecha));
+                            System.out.println("  Tipo: " + turno);
+                            System.out.println("  Horas extras: " + asignacionesTurno.get(empleado));
+                        }
+                    }
+                }
+                
+                if (!tieneTurnos) {
+                    System.out.println("No tiene turnos asignados");
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error al cargar turnos: " + e.getMessage());
+        }
+    }
+
 
     public static void main(String[] args) {
         ConsolaAdmin consola = new ConsolaAdmin();

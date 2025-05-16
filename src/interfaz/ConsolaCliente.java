@@ -4,11 +4,15 @@ import modelo.usuarios.Cliente;
 import modelo.usuarios.Usuario;
 import modelo.atracciones.Atraccion;
 import modelo.tiquetes.Tiquete;
+import modelo.tiquetes.TiqueteBasico;
+import modelo.tiquetes.FastPass;
 import persistencia.PersistenciaUsuarios;
 import persistencia.PersistenciaAtracciones;
 import persistencia.PersistenciaTiquetes;
 import java.util.Scanner;
 import java.util.List;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class ConsolaCliente {
     private Cliente cliente;
@@ -16,6 +20,7 @@ public class ConsolaCliente {
     private PersistenciaAtracciones persistenciaAtracciones;
     private PersistenciaTiquetes persistenciaTiquetes;
     private Scanner scanner;
+    private SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
 
     public ConsolaCliente() {
         persistenciaUsuarios = new PersistenciaUsuarios();
@@ -129,10 +134,139 @@ public class ConsolaCliente {
 
     private void comprarTiquete() {
         System.out.println("\n=== Compra de Tiquete ===");
-        System.out.print("Nombre del tiquete: ");
-        String nombreTiquete = scanner.nextLine();
-        // implementar la lógica para buscar y crear un Tiquete válido
-        System.out.println("Funcionalidad de compra de tiquete no implementada completamente.");
+        System.out.println("1. Tiquete Regular");
+        System.out.println("2. FastPass");
+        System.out.print("Seleccione una opción: ");
+        
+        int opcion = Integer.parseInt(scanner.nextLine());
+        switch (opcion) {
+            case 1:
+                comprarTiqueteRegular();
+                break;
+            case 2:
+                comprarFastPass();
+                break;
+            default:
+                System.out.println("Opción no válida");
+        }
+    }
+
+    private void comprarTiqueteRegular() {
+        System.out.println("\nTipos de tiquete disponibles:");
+        System.out.println("1. Básico - $50");
+        System.out.println("2. Familiar - $100");
+        System.out.println("3. Oro - $150");
+        System.out.println("4. Diamante - $200");
+        System.out.print("Seleccione el tipo: ");
+        
+        int tipo = Integer.parseInt(scanner.nextLine());
+        double precio = 0;
+        String categoria = "";
+        
+        switch (tipo) {
+            case 1:
+                precio = 50;
+                categoria = "BRONCE";
+                break;
+            case 2:
+                precio = 100;
+                categoria = "FAMILIAR";
+                break;
+            case 3:
+                precio = 150;
+                categoria = "ORO";
+                break;
+            case 4:
+                precio = 200;
+                categoria = "DIAMANTE";
+                break;
+            default:
+                System.out.println("Tipo no válido");
+                return;
+        }
+
+        if (cliente.isEmpleado()) {
+            precio = precio * 0.8; 
+            System.out.println("Descuento de empleado aplicado (20%)");
+        }
+
+        System.out.println("Precio final: $" + precio);
+        System.out.print("¿Confirmar compra? (S/N): ");
+        
+        if (scanner.nextLine().equalsIgnoreCase("S")) {
+            try {
+                TiqueteBasico tiquete = new TiqueteBasico(
+                    generarIdTiquete(),
+                    "Tiquete " + categoria,
+                    1,
+                    categoria,
+                    new Date(),
+                    "Activo",
+                    "Online",
+                    "Adulto",
+                    false
+                );
+                
+                cliente.comprarTiquete(tiquete);
+                System.out.println("Tiquete comprado exitosamente");
+            } catch (Exception e) {
+                System.out.println("Error al comprar tiquete: " + e.getMessage());
+            }
+        }
+    }
+
+    private void comprarFastPass() {
+        if (cliente.getTiquetes().isEmpty()) {
+            System.out.println("Debe tener al menos un tiquete para comprar FastPass");
+            return;
+        }
+
+        System.out.println("\nTiquetes disponibles para FastPass:");
+        List<Tiquete> tiquetes = cliente.getTiquetes();
+        for (int i = 0; i < tiquetes.size(); i++) {
+            System.out.println((i + 1) + ". " + tiquetes.get(i).getNombre());
+        }
+
+        System.out.print("Seleccione el tiquete: ");
+        int indice = Integer.parseInt(scanner.nextLine()) - 1;
+        
+        if (indice < 0 || indice >= tiquetes.size()) {
+            System.out.println("Tiquete no válido");
+            return;
+        }
+
+        System.out.print("Fecha para el FastPass (dd/MM/yyyy): ");
+        String fechaStr = scanner.nextLine();
+        
+        try {
+            Date fecha = formatoFecha.parse(fechaStr);
+            double precio = 30; 
+
+            if (cliente.isEmpleado()) {
+                precio = precio * 0.8; 
+                System.out.println("Descuento de empleado aplicado (20%)");
+            }
+
+            System.out.println("Precio del FastPass: $" + precio);
+            System.out.print("¿Confirmar compra? (S/N): ");
+
+            if (scanner.nextLine().equalsIgnoreCase("S")) {
+                FastPass fastPass = new FastPass(tiquetes.get(indice), fecha);
+                cliente.agregarFastPass(fastPass);
+                System.out.println("FastPass comprado exitosamente");
+            }
+        } catch (Exception e) {
+            System.out.println("Error al comprar FastPass: " + e.getMessage());
+        }
+    }
+
+    private int generarIdTiquete() {
+        try {
+            List<TiqueteBasico> tiquetes = persistenciaTiquetes.cargarTiquetesBasicos();
+            return tiquetes.size() + 1;
+        } catch (Exception e) {
+            return 1;
+        }
     }
 
     private void verTiquetes() {
