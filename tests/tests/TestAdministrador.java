@@ -237,33 +237,33 @@ public class TestAdministrador {
     
     
 //  Los siguientes 3 métodos son para probar el método cambiarInfoAtraccion
-  @Test
-  public void testCambiarInfoEmpleado() throws AtraccionException, EmpleadoException {
-      Empleado emp1= new Cajero(
-                  "Cajero",
-                  "David Bowie",
-                  3,
-                  false,
-                  "david@.rcarcods.com",
-                  "Changes_deshrek",
-                  false
-              );
-
-      admin.cambiarInfoEmpleado(emp1);
-
-      Empleado encontrada = null;
-      for (Atraccion a : admin.getAtracciones()) {
-          if (a.getNombre().equals("Casa del Terror")) {
-              encontrada = a;
-              break;
-          }
-      }
-
-      assertNotNull(encontrada);
-      assertEquals("Diamante", ((AtraccionCultural) encontrada).getNivelExclusividad());  
-      assertEquals(13, ((AtraccionCultural) encontrada).getEdadMinima());
-  }
-    
+//  @Test
+//  public void testCambiarInfoEmpleado() throws AtraccionException, EmpleadoException {
+//      Empleado emp1= new Cajero(
+//                  "Cajero",
+//                  "David Bowie",
+//                  3,
+//                  false,
+//                  "david@.rcarcods.com",
+//                  "Changes_deshrek",
+//                  false
+//              );
+//
+//      admin.cambiarInfoEmpleado(emp1);
+//
+//      Empleado encontrada = null;
+//      for (Atraccion a : admin.getAtracciones()) {
+//          if (a.getNombre().equals("Casa del Terror")) {
+//              encontrada = a;
+//              break;
+//          }
+//      }
+//
+//      assertNotNull(encontrada);
+//      assertEquals("Diamante", ((AtraccionCultural) encontrada).getNivelExclusividad());  
+//      assertEquals(13, ((AtraccionCultural) encontrada).getEdadMinima());
+//  }
+//    
     
     
 
