@@ -199,4 +199,33 @@ public class AtraccionMecanica extends Atraccion {
     public void setFechaFinTemporada(Date fechaFinTemporada) {
         this.fechaFinTemporada = fechaFinTemporada;
     }
+
+    @Override
+    public boolean estaDisponible(Date fecha) {
+        if (fecha == null) {
+            return false;
+        }
+
+        for (Date fechaMantenimiento : fechasMantenimiento) {
+            if (mismodia(fechaMantenimiento, fecha)) {
+                return false;
+            }
+        }
+     
+        if (deTemporada) {
+            if (fechaInicio == null || fechaFin == null) {
+                return false;
+            }
+            return !fecha.before(fechaInicio) && !fecha.after(fechaFin);
+        }
+        
+        return true;
+    }
+    
+    private boolean mismodia(Date fecha1, Date fecha2) {
+        long milisEnDia = 24 * 60 * 60 * 1000;
+        long dia1 = fecha1.getTime() / milisEnDia;
+        long dia2 = fecha2.getTime() / milisEnDia;
+        return dia1 == dia2;
+    }
 }

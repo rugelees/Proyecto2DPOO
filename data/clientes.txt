@@ -1,1 +1,4 @@
-Cliente Test|998|cliente@test.com|pass123|170.0|70.0|25|null
+Ana López|201|ana@email.com|pass201|165.0|60.0|25|Asma
+Carlos Torres|202|carlos@email.com|pass202|180.0|80.0|30|null
+Sofía Martínez|203|sofia@email.com|pass203|155.0|50.0|9|null
+baruc|1010|baruc@a.com|jero|193.0|70.0|19|null

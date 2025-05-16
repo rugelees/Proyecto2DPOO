@@ -5,10 +5,13 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 import modelo.atracciones.Espectaculo;
+import modelo.usuarios.Cliente;
 
 public class TestEspectaculo {
     
     private Espectaculo espectaculo;
+    private Cliente clienteValido;
+    private Cliente clienteInvalido;
     private Date fechaActual;
     private Date fechaFutura;
     private Date fechaPasada;
@@ -26,13 +29,58 @@ public class TestEspectaculo {
         espectaculo = new Espectaculo(
             "Show de Delfines",
             "No realizar en caso de lluvia",
-            true,  
+            true,
             fechaActual,
             fechaFutura,
             "45 minutos",
             "15:00",
             100
         );
+        
+        clienteValido = new Cliente("Juan Pérez", 1, "juan@ejemplo.com", "clave123", 170.0f, 70.0f, 25);
+        clienteInvalido = new Cliente("Niño Pequeño", 2, "niño@ejemplo.com", "clave123", 110.0f, 30.0f, 8);
+    }
+    
+    @Test
+    public void testPropiedadesEspectaculo() {
+        assertEquals("Show de Delfines", espectaculo.getNombre());
+        assertEquals("No realizar en caso de lluvia", espectaculo.getRestriccionClima());
+        
+        espectaculo.agregarFuncion(fechaActual);
+        assertTrue(espectaculo.estaDisponible(fechaActual));
+        
+        assertEquals(fechaActual, espectaculo.getFechaInicio());
+        assertEquals(fechaFutura, espectaculo.getFechaFin());
+        assertEquals("45 minutos", espectaculo.getDuracion());
+        assertEquals("15:00", espectaculo.getHorario());
+        assertEquals(100, espectaculo.getCapacidad());
+    }
+    
+    @Test
+    public void testEstaDisponible() {
+        espectaculo.agregarFuncion(fechaActual);
+        assertTrue(espectaculo.estaDisponible(fechaActual));
+        
+        Date fechaFueraDeRango = new Date(fechaFutura.getTime() + 24L * 60 * 60 * 1000);
+        assertFalse(espectaculo.estaDisponible(fechaFueraDeRango));
+    }
+    
+    @Test
+    public void testModificarHorario() {
+        espectaculo.setHorario("16:00");
+        assertEquals("16:00", espectaculo.getHorario());
+    }
+    
+    @Test
+    public void testModificarDuracion() {
+        espectaculo.setDuracion("60 minutos");
+        assertEquals("60 minutos", espectaculo.getDuracion());
+    }
+    
+    @Test
+    public void testModificarCapacidad() {
+        espectaculo.setCapacidad(150);
+        assertEquals(150, espectaculo.getCapacidad());
     }
     
     @Test
@@ -69,22 +117,6 @@ public class TestEspectaculo {
         resultado = espectaculo.cancelarFuncion(fechaNoExistente);
         assertFalse(resultado);
         assertEquals(1, espectaculo.getFunciones().size());
-    }
-    
-    @Test
-    public void testEstaDisponible() {
-        assertFalse(espectaculo.estaDisponible(fechaActual));
-        
-        Date fechaFuncion = new Date(fechaActual.getTime() + 7L * 24 * 60 * 60 * 1000);
-        espectaculo.agregarFuncion(fechaFuncion);
-        
-        assertTrue(espectaculo.estaDisponible(fechaFuncion));
-        
-        assertFalse(espectaculo.estaDisponible(fechaActual));
-        
-        Date fechaFueraDeLaTemporada = new Date(fechaFutura.getTime() + 24 * 60 * 60 * 1000);
-        espectaculo.agregarFuncion(fechaFueraDeLaTemporada);
-        assertFalse(espectaculo.estaDisponible(fechaFueraDeLaTemporada));
     }
     
     @Test

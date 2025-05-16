@@ -39,6 +39,10 @@ public class EnTemporada extends Tiquete {
             return false;
         }
         
+        if (usado) {
+            return false;
+        }
+        
         Date ahora = new Date();
         if (!estaVigente(ahora)) {
             return false;

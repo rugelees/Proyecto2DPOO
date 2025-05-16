@@ -1,1 +1,4 @@
-995|Tiquete Test|1|Familiar|2025-05-15|Activo|false|Taquilla|false|Adulto
+301|Tiquete Familiar|1|Familiar|2025-04-20|Activo|false|Taquilla|false|Adulto
+302|Tiquete Oro|1|Oro|2025-04-20|Activo|false|Taquilla|false|Adulto
+303|Tiquete Diamante|1|Diamante|2025-04-20|Activo|false|Taquilla|false|Niño
+1000|Tiquete Familiar|1|Familiar|2025-04-20|Activo|false|Consola|false|Adulto

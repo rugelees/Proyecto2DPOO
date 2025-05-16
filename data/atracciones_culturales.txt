@@ -1,1 +1,2 @@
-Casa del Terror||false|null|null|Oro|1|Zona Este|25|12
+Casa del Terror||false|null|null|Oro|2|Zona Este|25|12
+Teatro Interactivo||false|null|null|Familiar|3|Zona Oeste|50|0

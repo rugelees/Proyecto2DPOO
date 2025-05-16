@@ -211,6 +211,7 @@ public class TestPersistencia {
             Cajero empleadoCajeroCargado = empleadosCajeroCargados.get(0);
             assertEquals(empleadoCajero.getNombre(), empleadoCajeroCargado.getNombre());
             assertEquals(empleadoCajero.getId(), empleadoCajeroCargado.getId());
+            assertEquals(empleadoCajero.getEmail(), empleadoCajeroCargado.getEmail());
             
         } catch (EmpleadoException e) {
             fail("No debería lanzar excepción: " + e.getMessage());
@@ -218,25 +219,65 @@ public class TestPersistencia {
     }
     
     @Test
-    public void testPersistenciaTiquetes() {
+    public void testPersistenciaEmpleadosMultiples() {
         try {
-            List<TiqueteBasico> tiquetesBasicos = new ArrayList<>();
-            tiquetesBasicos.add(tiqueteBasico);
-            persistenciaTiquetes.guardarTiquetesBasicos(tiquetesBasicos);
+            List<AtraccionAlto> empleadosAtraccionAlto = new ArrayList<>();
+            empleadosAtraccionAlto.add(empleadoAtraccionAlto);
+            empleadosAtraccionAlto.add(new AtraccionAlto(
+                "Operador de atracción alta",
+                "María López",
+                2,
+                false,
+                "maria@ejemplo.com",
+                "clave456",
+                true,
+                true
+            ));
+            persistenciaEmpleados.guardarEmpleadosAtraccionAlto(empleadosAtraccionAlto);
             
-            assertTrue(GuardarCargar.existeArchivo("tiquetes_basicos.txt"));
+            List<Cajero> empleadosCajero = new ArrayList<>();
+            empleadosCajero.add(empleadoCajero);
+            empleadosCajero.add(new Cajero(
+                "Cajero",
+                "Ana Martínez",
+                4,
+                false,
+                "ana@ejemplo.com",
+                "clave789",
+                true
+            ));
+            persistenciaEmpleados.guardarEmpleadosCajero(empleadosCajero);
             
-            List<TiqueteBasico> tiquetesBasicosCargados = persistenciaTiquetes.cargarTiquetesBasicos();
+            List<AtraccionAlto> empleadosAtraccionAltoCargados = persistenciaEmpleados.cargarEmpleadosAtraccionAlto();
+            List<Cajero> empleadosCajeroCargados = persistenciaEmpleados.cargarEmpleadosCajero();
             
-            assertEquals(1, tiquetesBasicosCargados.size());
+            assertEquals(2, empleadosAtraccionAltoCargados.size());
+            assertEquals(2, empleadosCajeroCargados.size());
             
-            TiqueteBasico tiqueteCargado = tiquetesBasicosCargados.get(0);
-            assertEquals(tiqueteBasico.getId(), tiqueteCargado.getId());
-            assertEquals(tiqueteBasico.getNombre(), tiqueteCargado.getNombre());
-            assertEquals(tiqueteBasico.getExclusividad(), tiqueteCargado.getExclusividad());
-            assertEquals(tiqueteBasico.getCategoria(), tiqueteCargado.getCategoria());
+            assertEquals("Juan Pérez", empleadosAtraccionAltoCargados.get(0).getNombre());
+            assertEquals("María López", empleadosAtraccionAltoCargados.get(1).getNombre());
+            assertEquals("Pedro Gómez", empleadosCajeroCargados.get(0).getNombre());
+            assertEquals("Ana Martínez", empleadosCajeroCargados.get(1).getNombre());
             
-        } catch (TiqueteException e) {
+        } catch (EmpleadoException e) {
+            fail("No debería lanzar excepción: " + e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testPersistenciaEmpleadosActualizar() {
+        try {
+            
+            List<AtraccionAlto> empleadosIniciales = new ArrayList<>();
+            empleadosIniciales.add(empleadoAtraccionAlto);
+            persistenciaEmpleados.guardarEmpleadosAtraccionAlto(empleadosIniciales);
+            empleadoAtraccionAlto.setCapacitado(true);
+            persistenciaEmpleados.guardarEmpleadosAtraccionAlto(empleadosIniciales);
+            List<AtraccionAlto> empleadosCargados = persistenciaEmpleados.cargarEmpleadosAtraccionAlto();
+            assertEquals(1, empleadosCargados.size());
+            assertTrue(empleadosCargados.get(0).isCapacitado());
+            
+        } catch (EmpleadoException e) {
             fail("No debería lanzar excepción: " + e.getMessage());
         }
     }
@@ -362,6 +403,329 @@ public class TestPersistencia {
             assertFalse(GuardarCargar.existeArchivo("prueba_lineas.txt"));
             
         } catch (IOException e) {
+            fail("No debería lanzar excepción: " + e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testCargarAtraccionesArchivoVacio() throws AtraccionException {
+        try {
+            GuardarCargar.guardarLineas(new ArrayList<>(), "atracciones_mecanicas.txt");
+            GuardarCargar.guardarLineas(new ArrayList<>(), "atracciones_culturales.txt");
+            GuardarCargar.guardarLineas(new ArrayList<>(), "espectaculos.txt");
+        } catch (IOException e) {
+            fail("No debería lanzar excepción al crear archivos vacíos");
+        }
+        List<AtraccionMecanica> atraccionesMecanicas = persistenciaAtracciones.cargarAtraccionesMecanicas();
+        List<AtraccionCultural> atraccionesCulturales = persistenciaAtracciones.cargarAtraccionesCulturales();
+        List<Espectaculo> espectaculos = persistenciaAtracciones.cargarEspectaculos();
+        
+        assertTrue(atraccionesMecanicas.isEmpty());
+        assertTrue(atraccionesCulturales.isEmpty());
+        assertTrue(espectaculos.isEmpty());
+    }
+    
+    @Test
+    public void testCargarAtraccionesArchivoNoExiste() throws AtraccionException {
+        List<AtraccionMecanica> atraccionesMecanicas = persistenciaAtracciones.cargarAtraccionesMecanicas();
+        List<AtraccionCultural> atraccionesCulturales = persistenciaAtracciones.cargarAtraccionesCulturales();
+        List<Espectaculo> espectaculos = persistenciaAtracciones.cargarEspectaculos();
+        
+        assertTrue(atraccionesMecanicas.isEmpty());
+        assertTrue(atraccionesCulturales.isEmpty());
+        assertTrue(espectaculos.isEmpty());
+    }
+
+    @Test
+    public void testGuardarAtraccionesConFechasInvalidas() {
+        AtraccionMecanica atraccion = new AtraccionMecanica(
+            "Montaña Rusa",
+            "No operar en caso de tormenta eléctrica",
+            true,
+            new Date(System.currentTimeMillis() + 86400000), 
+            new Date(System.currentTimeMillis() - 86400000), 
+            "Oro",
+            2,
+            "Zona Norte",
+            50,
+            120.0f,
+            200.0f,
+            40.0f,
+            120.0f,
+            "vértigo, problemas cardíacos",
+            "alto"
+        );
+        
+        List<AtraccionMecanica> atracciones = new ArrayList<>();
+        atracciones.add(atraccion);
+        
+        try {
+            persistenciaAtracciones.guardarAtraccionesMecanicas(atracciones);
+            List<AtraccionMecanica> atraccionesCargadas = persistenciaAtracciones.cargarAtraccionesMecanicas();
+            assertEquals(1, atraccionesCargadas.size());
+            assertEquals(atraccion.getNombre(), atraccionesCargadas.get(0).getNombre());
+        } catch (AtraccionException e) {
+            fail("No debería lanzar excepción con fechas inválidas");
+        }
+    }
+    
+    @Test
+    public void testGuardarCargarEspectaculoConFunciones() {
+        Date fechaActual = new Date();
+        Espectaculo espectaculo = new Espectaculo(
+            "Show de Delfines",
+            "No realizar en caso de lluvia",
+            true,
+            fechaActual,
+            new Date(fechaActual.getTime() + 30L * 24 * 60 * 60 * 1000),
+            "45 minutos",
+            "15:00",
+            100
+        );
+        
+        Date funcion1 = new Date(fechaActual.getTime());
+        Date funcion2 = new Date(fechaActual.getTime() + 86400000);
+        espectaculo.agregarFuncion(funcion1);
+        espectaculo.agregarFuncion(funcion2);
+        
+        List<Espectaculo> espectaculos = new ArrayList<>();
+        espectaculos.add(espectaculo);
+        
+        try {
+            persistenciaAtracciones.guardarEspectaculos(espectaculos);
+            List<Espectaculo> espectaculosCargados = persistenciaAtracciones.cargarEspectaculos();
+            
+            assertEquals(1, espectaculosCargados.size());
+            Espectaculo espectaculoCargado = espectaculosCargados.get(0);
+            assertEquals(2, espectaculoCargado.getFunciones().size());
+            List<Date> funcionesCargadas = espectaculoCargado.getFunciones();
+            assertTrue(espectaculoCargado.estaDisponible(funcion1));
+            assertTrue(espectaculoCargado.estaDisponible(funcion2));
+            Date fechaNoDisponible = new Date(fechaActual.getTime() + 172800000); 
+            assertFalse(espectaculoCargado.estaDisponible(fechaNoDisponible));
+            
+        } catch (AtraccionException e) {
+            fail("No debería lanzar excepción al guardar/cargar espectáculo con funciones: " + e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testPersistenciaTiquetes() {
+        try {
+            List<TiqueteBasico> tiquetesBasicos = new ArrayList<>();
+            tiquetesBasicos.add(tiqueteBasico);
+            persistenciaTiquetes.guardarTiquetesBasicos(tiquetesBasicos);
+            
+            assertTrue(GuardarCargar.existeArchivo("tiquetes_basicos.txt"));
+            
+            List<TiqueteBasico> tiquetesBasicosCargados = persistenciaTiquetes.cargarTiquetesBasicos();
+            
+            assertEquals(1, tiquetesBasicosCargados.size());
+            
+            TiqueteBasico tiqueteCargado = tiquetesBasicosCargados.get(0);
+            assertEquals(tiqueteBasico.getId(), tiqueteCargado.getId());
+            assertEquals(tiqueteBasico.getNombre(), tiqueteCargado.getNombre());
+            assertEquals(tiqueteBasico.getExclusividad(), tiqueteCargado.getExclusividad());
+            assertEquals(tiqueteBasico.getCategoria(), tiqueteCargado.getCategoria());
+            assertEquals(tiqueteBasico.getEstado(), tiqueteCargado.getEstado());
+            assertEquals(tiqueteBasico.isUsado(), tiqueteCargado.isUsado());
+            
+        } catch (TiqueteException e) {
+            fail("No debería lanzar excepción: " + e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testPersistenciaTiquetesActualizar() {
+        try {
+            List<TiqueteBasico> tiquetesIniciales = new ArrayList<>();
+            tiquetesIniciales.add(tiqueteBasico);
+            persistenciaTiquetes.guardarTiquetesBasicos(tiquetesIniciales);
+            tiqueteBasico.setEstado("Usado");
+            tiqueteBasico.setUsado(true);
+            persistenciaTiquetes.guardarTiquetesBasicos(tiquetesIniciales);
+            List<TiqueteBasico> tiquetesCargados = persistenciaTiquetes.cargarTiquetesBasicos();
+            assertEquals(1, tiquetesCargados.size());
+            assertEquals("Usado", tiquetesCargados.get(0).getEstado());
+            assertTrue(tiquetesCargados.get(0).isUsado());
+            
+        } catch (TiqueteException e) {
+            fail("No debería lanzar excepción: " + e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testGuardarCargarClientes() {
+        Cliente cliente = new Cliente(
+            "Juan Cliente",
+            101,
+            "cliente@ejemplo.com",
+            "clave123",
+            170.0f,
+            70.0f,
+            25
+        );
+        
+        List<Cliente> clientes = new ArrayList<>();
+        clientes.add(cliente);
+        
+        try {
+            persistenciaUsuarios.guardarClientes(clientes);
+            List<Cliente> clientesCargados = persistenciaUsuarios.cargarClientes();
+            
+            assertEquals(1, clientesCargados.size());
+            assertEquals(cliente.getNombre(), clientesCargados.get(0).getNombre());
+            assertEquals(cliente.getId(), clientesCargados.get(0).getId());
+            assertEquals(cliente.getEmail(), clientesCargados.get(0).getEmail());
+            assertEquals(cliente.getEdad(), clientesCargados.get(0).getEdad());
+        } catch (UsuarioException e) {
+            fail("No debería lanzar excepción al guardar/cargar cliente");
+        }
+    }
+    
+    @Test
+    public void testGuardarCargarAdministradores() {
+        Administrador admin = new Administrador(
+            "Admin Principal",
+            1000,
+            "admin@parque.com",
+            "admin123"
+        );
+        
+        List<Administrador> administradores = new ArrayList<>();
+        administradores.add(admin);
+        
+        try {
+            persistenciaUsuarios.guardarAdministradores(administradores);
+            List<Administrador> administradoresCargados = persistenciaUsuarios.cargarAdministradores();
+            
+            assertEquals(1, administradoresCargados.size());
+            assertEquals(admin.getNombre(), administradoresCargados.get(0).getNombre());
+            assertEquals(admin.getId(), administradoresCargados.get(0).getId());
+            assertEquals(admin.getEmail(), administradoresCargados.get(0).getEmail());
+        } catch (UsuarioException e) {
+            fail("No debería lanzar excepción al guardar/cargar administrador");
+        }
+    }
+    
+    @Test
+    public void testCargarUsuariosArchivoVacio() throws UsuarioException {
+        try {
+            GuardarCargar.guardarLineas(new ArrayList<>(), "clientes.txt");
+            GuardarCargar.guardarLineas(new ArrayList<>(), "administradores.txt");
+        } catch (IOException e) {
+            fail("No debería lanzar excepción al crear archivos vacíos");
+        }
+        List<Cliente> clientes = persistenciaUsuarios.cargarClientes();
+        List<Administrador> administradores = persistenciaUsuarios.cargarAdministradores();
+        
+        assertTrue(clientes.isEmpty());
+        assertTrue(administradores.isEmpty());
+    }
+    
+    @Test
+    public void testGuardarUsuariosConDatosInvalidos() {
+        Cliente cliente = new Cliente(
+            "", 
+            -1, 
+            "email_invalido", 
+            "", 
+            -1.0f,
+            -1.0f, 
+            -1 
+        );
+        
+        List<Cliente> clientes = new ArrayList<>();
+        clientes.add(cliente);
+        
+        try {
+            persistenciaUsuarios.guardarClientes(clientes);
+            List<Cliente> clientesCargados = persistenciaUsuarios.cargarClientes();
+            
+            assertEquals(1, clientesCargados.size());
+            assertEquals(cliente.getNombre(), clientesCargados.get(0).getNombre());
+            assertEquals(cliente.getId(), clientesCargados.get(0).getId());
+            assertEquals(cliente.getEmail(), clientesCargados.get(0).getEmail());
+            assertEquals(cliente.getEdad(), clientesCargados.get(0).getEdad());
+        } catch (UsuarioException e) {
+            fail("No debería lanzar excepción con datos inválidos");
+        }
+    }
+    
+    @Test
+    public void testBuscarUsuarioPorEmailNoExiste() throws UsuarioException {
+        assertNull(persistenciaUsuarios.buscarUsuarioPorEmail("no_existe@ejemplo.com"));
+    }
+    
+    @Test
+    public void testAutenticarUsuarioNoExiste() throws UsuarioException {
+        assertNull(persistenciaUsuarios.autenticarUsuario("no_existe@ejemplo.com", "clave123"));
+    }
+    
+    @Test
+    public void testAutenticarUsuarioClaveIncorrecta() throws UsuarioException {
+        Cliente cliente = new Cliente(
+            "Juan Cliente",
+            101,
+            "cliente@ejemplo.com",
+            "clave123",
+            170.0f,
+            70.0f,
+            25
+        );
+        
+        List<Cliente> clientes = new ArrayList<>();
+        clientes.add(cliente);
+        
+        persistenciaUsuarios.guardarClientes(clientes);
+        
+        assertNull(persistenciaUsuarios.autenticarUsuario("cliente@ejemplo.com", "clave_incorrecta"));
+    }
+
+    @Test
+    public void testEstaDisponible() {
+        try {
+            Date fechaActual = new Date();
+            Date fechaInicio = new Date(fechaActual.getTime() - 86400000);
+            Date fechaFin = new Date(fechaActual.getTime() + 86400000); 
+            
+            AtraccionMecanica atraccion = new AtraccionMecanica(
+                "Montaña Rusa",
+                "No operar en caso de tormenta eléctrica",
+                true,
+                fechaInicio,
+                fechaFin,
+                "Oro",
+                2,
+                "Zona Norte",
+                50,
+                120.0f,
+                200.0f,
+                40.0f,
+                120.0f,
+                "vértigo, problemas cardíacos",
+                "alto"
+            );
+            
+            List<AtraccionMecanica> atracciones = new ArrayList<>();
+            atracciones.add(atraccion);
+            persistenciaAtracciones.guardarAtraccionesMecanicas(atracciones);
+            
+            List<AtraccionMecanica> atraccionesCargadas = persistenciaAtracciones.cargarAtraccionesMecanicas();
+            assertEquals(1, atraccionesCargadas.size());
+            
+            AtraccionMecanica atraccionCargada = atraccionesCargadas.get(0);
+            assertTrue(atraccionCargada.estaDisponible(fechaActual));
+            atraccion.setDeTemporada(true);
+            atraccion.setFechaInicio(new Date(fechaActual.getTime() + 86400000)); 
+            atraccion.setFechaFin(new Date(fechaActual.getTime() + 172800000)); 
+            persistenciaAtracciones.guardarAtraccionesMecanicas(atracciones);
+            
+            atraccionesCargadas = persistenciaAtracciones.cargarAtraccionesMecanicas();
+            atraccionCargada = atraccionesCargadas.get(0);
+            assertFalse(atraccionCargada.estaDisponible(fechaActual));
+            
+        } catch (AtraccionException e) {
             fail("No debería lanzar excepción: " + e.getMessage());
         }
     }

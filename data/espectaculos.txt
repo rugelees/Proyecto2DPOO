@@ -1,0 +1,2 @@
+Show de Delfines|No realizar durante tormentas|false|null|null|45 minutos|12:00|100|2025-04-20,2025-04-21,2025-04-22
+Circo Mágico||true|2025-04-20|2025-04-22|1:30 horas|17:00|200|2025-04-20,2025-04-21

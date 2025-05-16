@@ -116,6 +116,9 @@ public class TestAtraccion {
             "medio"
         );
         
+        atraccionTemporada.setFechaInicioTemporada(fechaActual);
+        atraccionTemporada.setFechaFinTemporada(fechaFutura);
+        
         assertTrue(atraccionTemporada.estaDisponible(fechaActual));
         assertTrue(atraccionTemporada.estaDisponible(new Date(fechaActual.getTime() + 30L * 24 * 60 * 60 * 1000)));
         

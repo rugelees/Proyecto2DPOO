@@ -1,0 +1,1 @@
+Atracción Medio|Pedro Rodríguez|103|false|pedro@parque.com|pass103|false|true|20-04-2025|07-05-2025|Rueda de la Fortuna,Carros Chocones

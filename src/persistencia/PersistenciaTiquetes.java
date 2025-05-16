@@ -287,7 +287,7 @@ public class PersistenciaTiquetes {
                     String[] partes = linea.split("\\|");
                     
                     if (partes.length >= 3) {
-                        // Buscar el tiquete por ID
+                  
                         int idTiquete = Integer.parseInt(partes[0]);
                         Tiquete tiqueteAsociado = null;
                         

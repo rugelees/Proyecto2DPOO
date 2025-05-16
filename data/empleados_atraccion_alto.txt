@@ -1,1 +1,2 @@
-Atracción Alto|Juan Perez|997|false|juan@test.com|pass123|false|true|null
+Atracción Alto|Juan Pérez|101|false|juan@parque.com|pass101|false|true|Montaña Rusa
+Atracción Alto|María García|102|false|maria@parque.com|pass102|true|true|Montaña Rusa
