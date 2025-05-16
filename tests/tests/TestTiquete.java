@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
-import modelo.atracciones.Atraccion;
 import modelo.atracciones.AtraccionCultural;
 import modelo.atracciones.AtraccionMecanica;
 import modelo.tiquetes.EnTemporada;
