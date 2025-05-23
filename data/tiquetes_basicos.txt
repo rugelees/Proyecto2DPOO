@@ -1,0 +1,1 @@
+995|Tiquete Test|1|Familiar|2025-05-22|Activo|false|Taquilla|false|Adulto

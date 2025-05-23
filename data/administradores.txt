@@ -1,0 +1,2 @@
+Admin Test|999|admin@test.com|admin123
+Carlos Gómez|10|carlos@mail.com|admin123

@@ -1,0 +1,3 @@
+Cliente Test|998|cliente@test.com|pass123|170.0|70.0|25|null
+Juan Pérez|1|juan@mail.com|1234|1.75|70.0|30|Ninguna
+Ana López|2|ana@mail.com|abcd|1.6|60.0|25|null
